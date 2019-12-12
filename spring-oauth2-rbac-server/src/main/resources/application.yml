@@ -1,0 +1,32 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: oauth2-jdbc-server
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: jdbc:mysql://127.0.0.1:3306/security?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: 1234
+    hikari:
+      minimum-idle: 5
+      idle-timeout: 600000
+      maximum-pool-size: 10
+      auto-commit: true
+      pool-name: MyHikariCP
+      max-lifetime: 1000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+# Generator
+generator:
+    targetProject: src/main/java
+    #mapper的父类
+    mappers: tk.mybatis.mapper.common.Mapper
+    #pojo所在包名
+    javaModel-targetPackage: org.rain.oauth2.server.entity
+    #mapper.xml位于resource文件夹下的哪个目录中
+    sqlMap-targetPackage: mapper
+    #mapper包名
+    javaClient-targetPackage: org.rain.oauth2.server.dao
