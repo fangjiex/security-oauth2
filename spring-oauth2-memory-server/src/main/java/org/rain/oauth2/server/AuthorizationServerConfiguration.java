@@ -24,7 +24,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 // client_secret 密文
                 .secret(passwordEncoder.encode("secret"))
                 // 授权类型
-                .authorizedGrantTypes("authorization_code")
+                .authorizedGrantTypes("authorization_code","refresh_token")
+                .accessTokenValiditySeconds(20)
+                .refreshTokenValiditySeconds(50)
                 // 授权范围
                 .scopes("app")
                 .autoApprove(true)
