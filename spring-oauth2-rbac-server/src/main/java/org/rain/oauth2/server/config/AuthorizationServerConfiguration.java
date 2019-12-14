@@ -1,14 +1,20 @@
 package org.rain.oauth2.server.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -19,6 +25,9 @@ import javax.sql.DataSource;
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
+
+    @Autowired
+    WebSecurityConfiguration securityConfiguration;
 
     @Bean
     @Primary
@@ -31,8 +40,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Bean
     public TokenStore tokenStore() {
         // 基于 JDBC 实现，令牌保存到数据
-        JdbcTokenStore jdbc = new JdbcTokenStore(dataSource());
-        return jdbc;
+        return new JdbcTokenStore(dataSource());
     }
 
     @Bean
@@ -41,10 +49,22 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return new JdbcClientDetailsService(dataSource());
     }
 
+//    @Bean
+//    @Primary
+//    public DefaultTokenServices defaultTokenServices(){
+//        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+//        defaultTokenServices.setSupportRefreshToken(true);
+//        defaultTokenServices.setReuseRefreshToken(false);
+//        defaultTokenServices.setTokenStore(tokenStore());
+//        return defaultTokenServices;
+//    }
+
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+        endpoints.userDetailsService(securityConfiguration.userDetailsService());
         // 设置令牌
         endpoints.tokenStore(tokenStore());
+
         //endpoints.tokenServices(defaultTokenServices());
 
 //        // 自定义确认授权页面
@@ -55,11 +75,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 //        endpoints.exceptionTranslator(new OpenOAuth2WebResponseExceptionTranslator());
     }
 
-//    @Override
-//    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-//        //security.tokenKeyAccess("permitAll()") // 开启/oauth/token_key验证端口无权限访问
-//          security.checkTokenAccess("isAuthenticated()");  // 开启/oauth/check_token验证端口认证权限访问
-//    }
+    @Override
+    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+        //security.tokenKeyAccess("permitAll()") // 开启/oauth/token_key验证端口无权限访问
+          security.checkTokenAccess("isAuthenticated()");  // 开启/oauth/check_token验证端口认证权限访问
+    }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {

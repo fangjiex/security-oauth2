@@ -22,7 +22,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 // client_id
                 .withClient("client")
                 // client_secret 密文
-                .secret(passwordEncoder.encode("secret"))
+                .secret(passwordEncoder.encode("jdbc"))
                 // 授权类型
                 .authorizedGrantTypes("authorization_code","refresh_token")
                 .accessTokenValiditySeconds(20)
